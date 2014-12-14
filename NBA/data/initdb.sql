@@ -1,0 +1,2 @@
+create table shots (name varchar, team_name varchar, game_date date, season int, espn_player_id int, team_id int, espn_game_id int, period int, minutes_remaining int, seconds_remaining int, shot_made_flag boolean, action_type varchar, shot_type varchar, shot_distance real, opponent varchar, x real, y real, dribbles int, touch_time real, defender_name varchar, defender_distance real, shot_clock real);
+copy shots from '/Users/dylancashman/Documents/School/Tufts/COMP_150d_vis/code/Data-Ball/NBA/data/nba_savant_ot_without_header.csv' DELIMITERS ',' CSV;
