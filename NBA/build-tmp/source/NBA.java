@@ -41,8 +41,8 @@ public void setup() {
     size(1300, 700, P2D);
     Interactive.make(this);
     courtCanvas = new Canvas(0, 0, 1000, 700);
-    // detailCanvas = new Canvas(1000, 0, 300, 300);
-    selectionCanvas = new Canvas(1000, 0, 300, 700);
+    detailCanvas = new Canvas(1000, 400, 300, 300);
+    selectionCanvas = new Canvas(1000, 0, 300, 400);
     radius = courtCanvas.w/((gridSize[0] -1 )*sqrt(3));
     grid = new HexGrid(gridSize, radius, courtCanvas);
     initController();
@@ -50,6 +50,8 @@ public void setup() {
     controller.applaySelection();
     court = loadShape("img/NBA_ready.svg");
     grid.hexShape.fill(200);
+    details = new HexDetails(10.0f);
+    details.set_canvas(detailCanvas);
 }
 
 public void initController() {
@@ -66,30 +68,30 @@ public void draw() {
     grid.display();
     shape(court, 0, 0, courtCanvas.w, courtCanvas.w*28/50);
     // hexagon.display();
-    // details.display();
-    // detailCanvas.drawRect(220);
     selectionCanvas.drawRect(250);
     selectionUI.display();
+    detailCanvas.drawRect(220);
+    details.display();
 }
 
 
-// void mouseMoved() {
-//     try {
-//         Hexagon newHex = grid.get_hexagon_fromXY(mouseX, mouseY);
-//         if (newHex != selectedHex) {
-//             if (selectedHex != null) {
-//                 // selectedHex.set_selected(false);
-//             }
-//             selectedHex = newHex;
-//             // selectedHex.set_selected(true);
-//             // details.set_newHex(newHex);
-//         }
-//     } catch (ArrayIndexOutOfBoundsException e) {
-//         // selectedHex.set_selected(false);
-//         selectedHex = null;
-//         // details.set_newHex(null);
-//     }
-// }
+public void mouseMoved() {
+    try {
+        Hexagon newHex = grid.get_hexagon_fromXY(mouseX, mouseY);
+        if (newHex != selectedHex) {
+            if (selectedHex != null) {
+                selectedHex.set_selected(false);
+            }
+            selectedHex = newHex;
+            selectedHex.set_selected(true);
+            details.set_newHex(newHex);
+        }
+    } catch (ArrayIndexOutOfBoundsException e) {
+        // selectedHex.set_selected(false);
+        selectedHex = null;
+        details.set_newHex(null);
+    }
+}
 public class Canvas {
   float x;
   float y;
@@ -218,7 +220,7 @@ public class Controller  {
     public void applaySelection() {
         this.grid.resetHexData();
         if (this.pgsql.connect()) {
-            String query = "SELECT x, y, name  FROM shots";
+            String query = "SELECT x, y, name, shot_made_flag, shot_type FROM shots";
             query += getConditionQuerry();
             println("query: "+query);
             this.pgsql.query(query);
@@ -226,7 +228,14 @@ public class Controller  {
                 int x = this.pgsql.getInt("x") + 250;
                 int y = this.pgsql.getInt("y") + 40;
                 String name = this.pgsql.getString("name");
-                this.grid.addShot(x, y, name);
+                boolean made = this.pgsql.getBoolean("shot_made_flag");
+                String shot_type = this.pgsql.getString("shot_type");
+                println("shot_type is " + shot_type);
+                if (shot_type.equals("2PT Field Goal")) {
+                    this.grid.addShot(x, y, name, made, !made, false, false);
+                } else if (shot_type.equals("3PT Field Goal")) {
+                    this.grid.addShot(x, y, name, false, false, made, !made);
+                }
             }
         }
     }
@@ -260,20 +269,21 @@ public class Controller  {
     }
 
 }
-
 public class HexDetails  {
 	Hexagon currentHex = null;
-	// Canvas canvas;
+	Canvas canvas;
 	PShape  hexShape;
-
 
 	public HexDetails (float r) {
 		this.hexShape = createHex(2*r);
 	}
 
-
 	public void set_newHex(Hexagon newHex) {
 		this.currentHex = newHex;
+	}
+
+	public void set_canvas(Canvas can) {
+		this.canvas = can;
 	}
 
 	public void display() {
@@ -283,8 +293,49 @@ public class HexDetails  {
 			fill(0, 0, 255);
 			shape(this.hexShape);
 			popMatrix();
+
+			fill(0, 102, 153);
+      textAlign( LEFT );
+      text( "DETAILS", canvas.x + 90, canvas.y + 20 );
+      text( "MADE: " + made(), canvas.x + 20, canvas.y + 80 );
+      text( "MISSED: " + missed(), canvas.x + 20, canvas.y + 140 );
+      text( "FG%: " + fg(), canvas.x + 20, canvas.y + 200 );
+      text( "eFG%: " + efg(), canvas.x + 20, canvas.y + 260 );
 		}
 	}
+
+	public String made() {
+		if (currentHex != null) {
+			return Integer.toString(currentHex.shotsMade);
+		} else {
+			return "";
+		}
+	}
+
+	public String missed() {
+		if (currentHex != null) {
+			return Integer.toString(currentHex.shotsMissed);
+		} else {
+			return "";
+		}
+	}
+
+	public String fg() {
+		if (currentHex != null) {
+			return Float.toString(((float)currentHex.shotsMade)/((float)(currentHex.shotsMade + currentHex.shotsMissed)));
+		} else {
+			return "";
+		}
+	}
+
+	public String efg() {
+		if (currentHex != null) {
+			return Float.toString(((float)(2*currentHex.twosMade + 3*currentHex.threesMade))/((float)(currentHex.shotsMissed + currentHex.shotsMade)));
+		} else {
+			return "";
+		}
+	}
+
 }
 public class HexGrid  {
 	int[] size;
@@ -326,12 +377,13 @@ public class HexGrid  {
 		}
 	}
 
-	public boolean addShot(int x, int y, String playerName) {
+	public boolean addShot(int x, int y, String playerName, boolean twoMade, boolean twoMissed,
+																										boolean threeMade, boolean threeMissed) {
 		try {
 			float x_scaled = x*this.scale;
 			float y_scaled = y*this.scale;
 			Hexagon currHex = this.get_hexagon_fromXY(x_scaled, y_scaled);
-			currHex.addShot(playerName);
+			currHex.addShot(playerName, twoMade, twoMissed, threeMade, threeMissed);
 			return true;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// println("out of bound");
@@ -406,41 +458,65 @@ public class Hexagon  {
 	float[] center;
 	PShape hexShape;
 	IntDict shots;
+	int shotsMade, shotsMissed, threesMade, threesMissed, twosMade, twosMissed;
 	boolean selected = false;
-	int maxVal = 30; // brightness
+	int maxVal = 3; // brightness
 
 	public Hexagon (PShape hexShape, float[] center) {
 		this.hexShape = hexShape;
 		this.center = center;
 		this.shots = new IntDict();
+		this.shotsMade = 0;
+		this.shotsMissed = 0;
+		this.threesMade = 0;
+		this.threesMissed = 0;
+		this.twosMade = 0;
+		this.twosMissed = 0;
 		this.shots.set("", 0);
 	}
 
 	public void display() {
 		// Calc shot accuracy
-		float val = max(shots.valueArray())*255/this.maxVal;
+		float val = max(shots.valueArray())*10/this.maxVal;
+		// fill(200 - val, 0, 0);
 		fill(val);
 		pushMatrix();
 		translate(this.center[0], this.center[1]);
-		// if (this.selected) {
-		// 	fill(0, 255, 0);
-		// 	scale(2.0);
-		// }
 		shape(this.hexShape);
 		popMatrix();
 	}
 
-	public void addShot(String playerName) {
+	public void addShot(String playerName, boolean twoMade, boolean twoMissed,
+																	boolean threeMade, boolean threeMissed) {
 		int allNum = 0;
 		if (this.shots.hasKey(playerName)) {
 			allNum = this.shots.get(playerName) + 1;
 		}
 		this.shots.set(playerName, allNum);
+
+		if (twoMade || threeMade) {
+			this.shotsMade += 1;
+		}
+		if (twoMissed || threeMissed) {
+			this.shotsMissed += 1;
+		}
+		if (threeMade) {
+			this.threesMade += 1;
+		}
+		if (threeMissed) {
+			this.threesMissed += 1;
+		}
+		if (twoMade) {
+			this.twosMade += 1;
+		}
+		if (twoMissed) {
+			this.twosMissed += 1;
+		}
 	}
 
-	// void set_selected(boolean b)  {
-	// 	this.selected = b;
-	// }
+	public void set_selected(boolean b)  {
+		this.selected = b;
+	}
 
 	public void set_maxVal(int maxVal) {
 		this.maxVal = maxVal;
@@ -450,7 +526,6 @@ public class Hexagon  {
 		this.shots = new IntDict();
 		this.shots.set("", 0);
 	}
-
 }
 
 public PShape createHex(float r) {

@@ -13,7 +13,7 @@ public class Controller  {
     void applaySelection() {
         this.grid.resetHexData();
         if (this.pgsql.connect()) {
-            String query = "SELECT x, y, name  FROM shots";
+            String query = "SELECT x, y, name, shot_made_flag, shot_type FROM shots";
             query += getConditionQuerry();
             println("query: "+query);
             this.pgsql.query(query);
@@ -21,7 +21,13 @@ public class Controller  {
                 int x = this.pgsql.getInt("x") + 250;
                 int y = this.pgsql.getInt("y") + 40;
                 String name = this.pgsql.getString("name");
-                this.grid.addShot(x, y, name);
+                boolean made = this.pgsql.getBoolean("shot_made_flag");
+                String shot_type = this.pgsql.getString("shot_type");
+                if (shot_type.equals("2PT Field Goal")) {
+                    this.grid.addShot(x, y, name, made, !made, false, false);
+                } else if (shot_type.equals("3PT Field Goal")) {
+                    this.grid.addShot(x, y, name, false, false, made, !made);
+                }
             }
         }
     }

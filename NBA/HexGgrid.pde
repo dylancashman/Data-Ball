@@ -38,12 +38,13 @@ public class HexGrid  {
 		}
 	}
 
-	boolean addShot(int x, int y, String playerName) {
+	boolean addShot(int x, int y, String playerName, boolean twoMade, boolean twoMissed,
+																										boolean threeMade, boolean threeMissed) {
 		try {
 			float x_scaled = x*this.scale;
 			float y_scaled = y*this.scale;
 			Hexagon currHex = this.get_hexagon_fromXY(x_scaled, y_scaled);
-			currHex.addShot(playerName);
+			currHex.addShot(playerName, twoMade, twoMissed, threeMade, threeMissed);
 			return true;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// println("out of bound");
