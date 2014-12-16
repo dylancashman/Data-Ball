@@ -29,11 +29,21 @@ public class HexGrid  {
 
 	void display() {
 		float t = 1;
+		float maxVal = 0.0;
+		for (Hexagon[] hexCol : this.grid) {
+			for (Hexagon h : hexCol) {
+				float hexval = h.getVal();
+				if (hexval > maxVal)
+					maxVal = hexval;
+			}
+		}
+
+		float logmaxVal= pow(maxVal, .33);
 		for (Hexagon[] hexCol : this.grid) {
 			for (Hexagon h : hexCol) {
 				fill(t);
 				t += 1;
-				h.display();
+				h.display(logmaxVal);
 			}
 		}
 	}

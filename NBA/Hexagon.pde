@@ -20,11 +20,18 @@ public class Hexagon  {
 		this.shots.set("", 0);
 	}
 
-	void display() {
+	float getVal() {
+		// return max(shots.valueArray())*10/this.maxVal;
+		return shotsMade + shotsMissed;
+	}
+
+	void display(float logmaxVal) {
 		// Calc shot accuracy
-		float val = max(shots.valueArray())*10/this.maxVal;
+		float val = getVal();
+		float logval = pow(val, .33);
+		float ratio = logval/logmaxVal;
 		// fill(200 - val, 0, 0);
-		fill(val);
+		fill(255, 255 - 255.0*ratio, 255 - 255.0*ratio);
 		pushMatrix();
 		translate(this.center[0], this.center[1]);
 		shape(this.hexShape);
