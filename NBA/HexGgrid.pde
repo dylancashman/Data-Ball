@@ -6,15 +6,22 @@ public class HexGrid  {
 	Canvas c;
 	int maxVal = 0;
 	float scale;
+	Controller controller;
+	String displayMode;
 
 	public HexGrid (int[] size, float r, Canvas canvas) {
 		this.size = size;
 		this.r = r;
 		this.c = canvas;
 		this.grid = new Hexagon[size[0]][size[1]];
+		this.displayMode = "frequency";
 		this.hexShape = createHex(this.r);
 		this.createGrid();
 		this.scale = min(canvas.w/500, canvas.h/350);
+	}
+
+	void setController(Controller c) {
+		this.controller = c;
 	}
 
 	void createGrid() {
@@ -22,9 +29,19 @@ public class HexGrid  {
 			for (int ix = 0; ix < this.size[0]; ++ix) {
 				int[] c = {ix, iy};
 				float[] center = this.get_hexCenter(c);
-				grid[ix][iy] = new Hexagon(this.hexShape, center);
+				grid[ix][iy] = new Hexagon(this.hexShape, center, this, displayMode);
 			}
 		}
+	}
+
+	void setDisplayMode(String mode) {
+		this.displayMode = mode;
+		for (Hexagon[] hexCol : this.grid) {
+			for (Hexagon h : hexCol) {
+				h.setDisplayMode(mode);
+			}
+		}
+
 	}
 
 	void display() {
@@ -38,7 +55,12 @@ public class HexGrid  {
 			}
 		}
 
-		float logmaxVal= pow(maxVal, .33);
+		float logmaxVal;
+		if (displayMode == "frequency") {
+			logmaxVal = pow(maxVal, .33);
+		} else {
+			logmaxVal = maxVal;
+		}
 		for (Hexagon[] hexCol : this.grid) {
 			for (Hexagon h : hexCol) {
 				fill(t);
@@ -129,6 +151,30 @@ public class HexGrid  {
 				h.zeroOut();
 			}
 		}
+	}
+
+	int totalshotsMade() {
+		return controller.totalshotsMade;
+	}
+
+	int totalshotsMissed() {
+		return controller.totalshotsMissed;
+	}
+
+	int totalthreesMade() {
+		return controller.totalthreesMade;
+	}
+
+	int totalthreesMissed() {
+		return controller.totalthreesMissed;
+	}
+
+	int totaltwosMade() {
+		return controller.totaltwosMade;
+	}
+
+	int totaltwosMissed() {
+		return controller.totaltwosMissed;
 	}
 
 }

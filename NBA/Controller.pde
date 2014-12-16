@@ -2,12 +2,27 @@ public class Controller  {
     PostgreSQL pgsql;
     HexGrid grid;
     String madeLabel = "all";
+    String teamLabel = "all";
     boolean[] quarters = {false, false, false, false, false};
     float[] shot_clock = {.0, 24.0};
+    int totalshotsMade;
+    int totalshotsMissed;
+    int totalthreesMade;
+    int totalthreesMissed;
+    int totaltwosMade;
+    int totaltwosMissed;
+    String displayMode;
 
     public Controller (PostgreSQL pgsql, HexGrid grid) {
         this.pgsql = pgsql;
         this.grid = grid;
+        this.displayMode = "frequency";
+        grid.setDisplayMode(this.displayMode);
+    }
+
+    void setDisplayMode(String mode) {
+        this.displayMode = mode;
+        grid.setDisplayMode(mode);
     }
 
     void applaySelection() {
@@ -30,11 +45,19 @@ public class Controller  {
                     this.grid.addShot(x, y, name, false, false, made, !made);
                 }
             }
+            this.pgsql.close();
         }
+
+        this.totalshotsMade = gettotalshotsMade();
+        this.totalshotsMissed = gettotalshotsMissed();
+        this.totalthreesMade = gettotalthreesMade();
+        this.totalthreesMissed = gettotalthreesMissed();
+        this.totaltwosMade = gettotaltwosMade();
+        this.totaltwosMissed = gettotaltwosMissed();
     }
 
     String getConditionQuerry() {
-        String startQuerry = " WHERE ";
+        String startQuerry = " WHERE 1=1 AND ";
         String quarterQuerry = "";
         String conditionQuerry = "(shot_clock>" + this.shot_clock[0] + " AND shot_clock<" + this.shot_clock[1] + ")";
         for (int i = 0; i < 5; ++i) {
@@ -58,7 +81,94 @@ public class Controller  {
             }
             conditionQuerry += " AND " + madeQuerry;
         }
+        if (teamLabel != "all") {
+            conditionQuerry += " AND team_name = '" + teamLabel + "'";
+        }
         return startQuerry + conditionQuerry;
+    }
+
+    int gettotalshotsMade() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = true";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int result = this.pgsql.getInt("count");
+            pgsql.close();
+            return result;
+        }
+        return 0;
+    }
+
+    int gettotalshotsMissed() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = false";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    int gettotalthreesMade() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = true AND shot_type = '3PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    int gettotalthreesMissed() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = false AND shot_type = '3PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    int gettotaltwosMade() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = true AND shot_type = '2PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    int gettotaltwosMissed() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = false AND shot_type = '2PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
     }
 
 }

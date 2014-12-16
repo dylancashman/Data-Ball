@@ -6,11 +6,19 @@ public class Hexagon  {
 	int shotsMade, shotsMissed, threesMade, threesMissed, twosMade, twosMissed;
 	boolean selected = false;
 	int maxVal = 3; // brightness
+	HexGrid hexGrid;
+	String displayMode;
 
-	public Hexagon (PShape hexShape, float[] center) {
+	public Hexagon (PShape hexShape, float[] center, HexGrid g, String display) {
 		this.hexShape = hexShape;
 		this.center = center;
 		this.zeroOut();
+		this.hexGrid = g;
+		this.displayMode = display;
+	}
+
+	void setDisplayMode(String mode) {
+		this.displayMode = mode;
 	}
 
 	void zeroOut() {
@@ -25,16 +33,35 @@ public class Hexagon  {
 	}
 
 	float getVal() {
-		// return max(shots.valueArray())*10/this.maxVal;
-		return shotsMade + shotsMissed;
+		if (displayMode == "fg") {
+			int totalShots = shotsMissed + shotsMade;
+			if (totalShots == 0) {
+				return 0.0;
+			} else {
+				return (float)shotsMade/((float)shotsMissed + (float)(shotsMade));
+			}
+		} else if (displayMode == "efg") {
+			int totalShots = shotsMissed + shotsMade;
+			if (totalShots == 0) {
+				return 0.0;
+			} else {
+				return ((float)(shotsMade) + (0.5 * threesMade))/((float)shotsMissed + (float)(shotsMade));
+			}
+		} else {
+			return shotsMade + shotsMissed;
+		}
 	}
 
 	void display(float logmaxVal) {
 		// Calc shot accuracy
 		float val = getVal();
-		float logval = pow(val, .33);
-		float ratio = logval/logmaxVal;
-		// fill(200 - val, 0, 0);
+		float ratio;
+		if (displayMode == "frequency") {
+			float logval = pow(val, .33);
+			ratio = logval/logmaxVal;
+		} else {
+			ratio = val/logmaxVal;
+		}
 		fill(255, 255 - 255.0*ratio, 255 - 255.0*ratio);
 		pushMatrix();
 		translate(this.center[0], this.center[1]);
@@ -82,13 +109,36 @@ public class Hexagon  {
 		this.shots = new IntDict();
 		this.shots.set("", 0);
 	}
+
+	int totalshotsMade() {
+		return hexGrid.totalshotsMade();
+	}
+
+	int totalshotsMissed() {
+		return hexGrid.totalshotsMissed();
+	}
+
+	int totalthreesMade() {
+		return hexGrid.totalthreesMade();
+	}
+
+	int totalthreesMissed() {
+		return hexGrid.totalthreesMissed();
+	}
+
+	int totaltwosMade() {
+		return hexGrid.totaltwosMade();
+	}
+
+	int totaltwosMissed() {
+		return hexGrid.totaltwosMissed();
+	}
 }
 
 PShape createHex(float r) {
 	PShape hexShape = createShape();
 	hexShape.beginShape();
 	float h = r*sqrt(3)/2;
-	// hexShape.fill(100);
 	hexShape.vertex(0, -r);
 	hexShape.vertex(h, -r/2);
 	hexShape.vertex(h,  r/2);

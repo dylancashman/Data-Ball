@@ -41,6 +41,7 @@ void initController() {
     String database = "NBAdb";
     pgsql = new PostgreSQL( this, "localhost", database, user, pass );
     controller = new Controller(pgsql, grid);
+    grid.setController(controller);
 }
 
 
@@ -48,28 +49,28 @@ void draw() {
     background(255);
     grid.display();
     shape(court, 0, 0, courtCanvas.w, courtCanvas.w*28/50);
-    // hexagon.display();
-    selectionCanvas.drawRect(250);
-    selectionUI.display();
     detailCanvas.drawRect(220);
     details.display();
+    selectionCanvas.drawRect(250);
+    selectionUI.display();
 }
 
-
 void mouseMoved() {
-    try {
-        Hexagon newHex = grid.get_hexagon_fromXY(mouseX, mouseY);
-        if (newHex != selectedHex) {
-            if (selectedHex != null) {
-                selectedHex.set_selected(false);
+    if (mouseX < 1000) {
+        try {
+            Hexagon newHex = grid.get_hexagon_fromXY(mouseX, mouseY);
+            if (newHex != selectedHex) {
+                if (selectedHex != null) {
+                    selectedHex.set_selected(false);
+                }
+                selectedHex = newHex;
+                selectedHex.set_selected(true);
+                details.set_newHex(newHex);
             }
-            selectedHex = newHex;
-            selectedHex.set_selected(true);
-            details.set_newHex(newHex);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // selectedHex.set_selected(false);
+            selectedHex = null;
+            details.set_newHex(null);
         }
-    } catch (ArrayIndexOutOfBoundsException e) {
-        // selectedHex.set_selected(false);
-        selectedHex = null;
-        details.set_newHex(null);
     }
 }

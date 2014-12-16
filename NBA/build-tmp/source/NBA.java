@@ -60,6 +60,7 @@ public void initController() {
     String database = "NBAdb";
     pgsql = new PostgreSQL( this, "localhost", database, user, pass );
     controller = new Controller(pgsql, grid);
+    grid.setController(controller);
 }
 
 
@@ -67,29 +68,30 @@ public void draw() {
     background(255);
     grid.display();
     shape(court, 0, 0, courtCanvas.w, courtCanvas.w*28/50);
-    // hexagon.display();
-    selectionCanvas.drawRect(250);
-    selectionUI.display();
     detailCanvas.drawRect(220);
     details.display();
+    selectionCanvas.drawRect(250);
+    selectionUI.display();
 }
 
 
 public void mouseMoved() {
-    try {
-        Hexagon newHex = grid.get_hexagon_fromXY(mouseX, mouseY);
-        if (newHex != selectedHex) {
-            if (selectedHex != null) {
-                selectedHex.set_selected(false);
+    if (mouseX < 1000) {
+        try {
+            Hexagon newHex = grid.get_hexagon_fromXY(mouseX, mouseY);
+            if (newHex != selectedHex) {
+                if (selectedHex != null) {
+                    selectedHex.set_selected(false);
+                }
+                selectedHex = newHex;
+                selectedHex.set_selected(true);
+                details.set_newHex(newHex);
             }
-            selectedHex = newHex;
-            selectedHex.set_selected(true);
-            details.set_newHex(newHex);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // selectedHex.set_selected(false);
+            selectedHex = null;
+            details.set_newHex(null);
         }
-    } catch (ArrayIndexOutOfBoundsException e) {
-        // selectedHex.set_selected(false);
-        selectedHex = null;
-        details.set_newHex(null);
     }
 }
 public class Canvas {
@@ -209,12 +211,27 @@ public class Controller  {
     PostgreSQL pgsql;
     HexGrid grid;
     String madeLabel = "all";
+    String teamLabel = "all";
     boolean[] quarters = {false, false, false, false, false};
     float[] shot_clock = {.0f, 24.0f};
+    int totalshotsMade;
+    int totalshotsMissed;
+    int totalthreesMade;
+    int totalthreesMissed;
+    int totaltwosMade;
+    int totaltwosMissed;
+    String displayMode;
 
     public Controller (PostgreSQL pgsql, HexGrid grid) {
         this.pgsql = pgsql;
         this.grid = grid;
+        this.displayMode = "frequency";
+        grid.setDisplayMode(this.displayMode);
+    }
+
+    public void setDisplayMode(String mode) {
+        this.displayMode = mode;
+        grid.setDisplayMode(mode);
     }
 
     public void applaySelection() {
@@ -223,6 +240,7 @@ public class Controller  {
             String query = "SELECT x, y, name, shot_made_flag, shot_type FROM shots";
             query += getConditionQuerry();
             println("query: "+query);
+            grid.zeroOut();
             this.pgsql.query(query);
             while (this.pgsql.next()) {
                 int x = this.pgsql.getInt("x") + 250;
@@ -236,11 +254,19 @@ public class Controller  {
                     this.grid.addShot(x, y, name, false, false, made, !made);
                 }
             }
+            this.pgsql.close();
         }
+
+        this.totalshotsMade = gettotalshotsMade();
+        this.totalshotsMissed = gettotalshotsMissed();
+        this.totalthreesMade = gettotalthreesMade();
+        this.totalthreesMissed = gettotalthreesMissed();
+        this.totaltwosMade = gettotaltwosMade();
+        this.totaltwosMissed = gettotaltwosMissed();
     }
 
     public String getConditionQuerry() {
-        String startQuerry = " WHERE ";
+        String startQuerry = " WHERE 1=1 AND ";
         String quarterQuerry = "";
         String conditionQuerry = "(shot_clock>" + this.shot_clock[0] + " AND shot_clock<" + this.shot_clock[1] + ")";
         for (int i = 0; i < 5; ++i) {
@@ -264,7 +290,94 @@ public class Controller  {
             }
             conditionQuerry += " AND " + madeQuerry;
         }
+        if (teamLabel != "all") {
+            conditionQuerry += " AND team_name = '" + teamLabel + "'";
+        }
         return startQuerry + conditionQuerry;
+    }
+
+    public int gettotalshotsMade() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = true";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int result = this.pgsql.getInt("count");
+            pgsql.close();
+            return result;
+        }
+        return 0;
+    }
+
+    public int gettotalshotsMissed() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = false";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    public int gettotalthreesMade() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = true AND shot_type = '3PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    public int gettotalthreesMissed() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = false AND shot_type = '3PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    public int gettotaltwosMade() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = true AND shot_type = '2PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
+    }
+
+    public int gettotaltwosMissed() {
+        if (this.pgsql.connect()) {
+            String query = "SELECT count(*) as count FROM shots";
+            query += getConditionQuerry();
+            query += " AND shot_made_flag = false AND shot_type = '2PT Field Goal'";
+            this.pgsql.query(query);
+            this.pgsql.next();
+            int count = this.pgsql.getInt("count");
+            pgsql.close();
+            return count;
+        }
+        return 0;
     }
 
 }
@@ -295,11 +408,17 @@ public class HexDetails  {
 
 			fill(0, 102, 153);
       textAlign( LEFT );
-      text( "DETAILS", canvas.x + 90, canvas.y + 20 );
+      text( "DETAILS", canvas.x + 20, canvas.y + 20 );
       text( "MADE: " + made(), canvas.x + 20, canvas.y + 80 );
       text( "MISSED: " + missed(), canvas.x + 20, canvas.y + 140 );
       text( "FG%: " + fg(), canvas.x + 20, canvas.y + 200 );
       text( "eFG%: " + efg(), canvas.x + 20, canvas.y + 260 );
+
+      text( "TOTALS", canvas.x + 190, canvas.y + 20 );
+      text( total_made(), canvas.x + 190, canvas.y + 80 );
+      text( total_missed(), canvas.x + 190, canvas.y + 140 );
+      text( total_fg(), canvas.x + 190, canvas.y + 200 );
+      text( total_efg(), canvas.x + 190, canvas.y + 260 );
 		}
 	}
 
@@ -335,6 +454,38 @@ public class HexDetails  {
 		}
 	}
 
+	public String total_made() {
+		if (currentHex != null) {
+			return Integer.toString(currentHex.totalshotsMade());
+		} else {
+			return "";
+		}
+	}
+
+	public String total_missed() {
+		if (currentHex != null) {
+			return Integer.toString(currentHex.totalshotsMissed());
+		} else {
+			return "";
+		}
+	}
+
+	public String total_fg() {
+		if (currentHex != null) {
+			return String.format("%.3g%n", 100*((float)currentHex.totalshotsMade())/((float)(currentHex.totalshotsMade() + currentHex.totalshotsMissed())));
+		} else {
+			return "";
+		}
+	}
+
+	public String total_efg() {
+		if (currentHex != null) {
+			return String.format("%.3g%n",100*((float)(currentHex.totalshotsMade() + (0.5f)*(float)currentHex.totalthreesMade()))/((float)(currentHex.totalshotsMissed() + currentHex.totalshotsMade())));
+		} else {
+			return "";
+		}
+	}
+
 }
 public class HexGrid  {
 	int[] size;
@@ -344,15 +495,22 @@ public class HexGrid  {
 	Canvas c;
 	int maxVal = 0;
 	float scale;
+	Controller controller;
+	String displayMode;
 
 	public HexGrid (int[] size, float r, Canvas canvas) {
 		this.size = size;
 		this.r = r;
 		this.c = canvas;
 		this.grid = new Hexagon[size[0]][size[1]];
+		this.displayMode = "frequency";
 		this.hexShape = createHex(this.r);
 		this.createGrid();
 		this.scale = min(canvas.w/500, canvas.h/350);
+	}
+
+	public void setController(Controller c) {
+		this.controller = c;
 	}
 
 	public void createGrid() {
@@ -360,18 +518,43 @@ public class HexGrid  {
 			for (int ix = 0; ix < this.size[0]; ++ix) {
 				int[] c = {ix, iy};
 				float[] center = this.get_hexCenter(c);
-				grid[ix][iy] = new Hexagon(this.hexShape, center);
+				grid[ix][iy] = new Hexagon(this.hexShape, center, this, displayMode);
 			}
 		}
 	}
 
+	public void setDisplayMode(String mode) {
+		this.displayMode = mode;
+		for (Hexagon[] hexCol : this.grid) {
+			for (Hexagon h : hexCol) {
+				h.setDisplayMode(mode);
+			}
+		}
+
+	}
+
 	public void display() {
 		float t = 1;
+		float maxVal = 0.0f;
+		for (Hexagon[] hexCol : this.grid) {
+			for (Hexagon h : hexCol) {
+				float hexval = h.getVal();
+				if (hexval > maxVal)
+					maxVal = hexval;
+			}
+		}
+
+		float logmaxVal;
+		if (displayMode == "frequency") {
+			logmaxVal = pow(maxVal, .33f);
+		} else {
+			logmaxVal = maxVal;
+		}
 		for (Hexagon[] hexCol : this.grid) {
 			for (Hexagon h : hexCol) {
 				fill(t);
 				t += 1;
-				h.display();
+				h.display(logmaxVal);
 			}
 		}
 	}
@@ -451,6 +634,38 @@ public class HexGrid  {
 		}
 	}
 
+	public void zeroOut() {
+		for (Hexagon[] hexCol : this.grid) {
+			for (Hexagon h : hexCol) {
+				h.zeroOut();
+			}
+		}
+	}
+
+	public int totalshotsMade() {
+		return controller.totalshotsMade;
+	}
+
+	public int totalshotsMissed() {
+		return controller.totalshotsMissed;
+	}
+
+	public int totalthreesMade() {
+		return controller.totalthreesMade;
+	}
+
+	public int totalthreesMissed() {
+		return controller.totalthreesMissed;
+	}
+
+	public int totaltwosMade() {
+		return controller.totaltwosMade;
+	}
+
+	public int totaltwosMissed() {
+		return controller.totaltwosMissed;
+	}
+
 }
 
 public class Hexagon  {
@@ -460,10 +675,22 @@ public class Hexagon  {
 	int shotsMade, shotsMissed, threesMade, threesMissed, twosMade, twosMissed;
 	boolean selected = false;
 	int maxVal = 3; // brightness
+	HexGrid hexGrid;
+	String displayMode;
 
-	public Hexagon (PShape hexShape, float[] center) {
+	public Hexagon (PShape hexShape, float[] center, HexGrid g, String display) {
 		this.hexShape = hexShape;
 		this.center = center;
+		this.zeroOut();
+		this.hexGrid = g;
+		this.displayMode = display;
+	}
+
+	public void setDisplayMode(String mode) {
+		this.displayMode = mode;
+	}
+
+	public void zeroOut() {
 		this.shots = new IntDict();
 		this.shotsMade = 0;
 		this.shotsMissed = 0;
@@ -474,11 +701,37 @@ public class Hexagon  {
 		this.shots.set("", 0);
 	}
 
-	public void display() {
+	public float getVal() {
+		if (displayMode == "fg") {
+			int totalShots = shotsMissed + shotsMade;
+			if (totalShots == 0) {
+				return 0.0f;
+			} else {
+				return (float)shotsMade/((float)shotsMissed + (float)(shotsMade));
+			}
+		} else if (displayMode == "efg") {
+			int totalShots = shotsMissed + shotsMade;
+			if (totalShots == 0) {
+				return 0.0f;
+			} else {
+				return ((float)(shotsMade) + (0.5f * threesMade))/((float)shotsMissed + (float)(shotsMade));
+			}
+		} else {
+			return shotsMade + shotsMissed;
+		}
+	}
+
+	public void display(float logmaxVal) {
 		// Calc shot accuracy
-		float val = max(shots.valueArray())*10/this.maxVal;
-		// fill(200 - val, 0, 0);
-		fill(val);
+		float val = getVal();
+		float ratio;
+		if (displayMode == "frequency") {
+			float logval = pow(val, .33f);
+			ratio = logval/logmaxVal;
+		} else {
+			ratio = val/logmaxVal;
+		}
+		fill(255, 255 - 255.0f*ratio, 255 - 255.0f*ratio);
 		pushMatrix();
 		translate(this.center[0], this.center[1]);
 		shape(this.hexShape);
@@ -525,13 +778,36 @@ public class Hexagon  {
 		this.shots = new IntDict();
 		this.shots.set("", 0);
 	}
+
+	public int totalshotsMade() {
+		return hexGrid.totalshotsMade();
+	}
+
+	public int totalshotsMissed() {
+		return hexGrid.totalshotsMissed();
+	}
+
+	public int totalthreesMade() {
+		return hexGrid.totalthreesMade();
+	}
+
+	public int totalthreesMissed() {
+		return hexGrid.totalthreesMissed();
+	}
+
+	public int totaltwosMade() {
+		return hexGrid.totaltwosMade();
+	}
+
+	public int totaltwosMissed() {
+		return hexGrid.totaltwosMissed();
+	}
 }
 
 public PShape createHex(float r) {
 	PShape hexShape = createShape();
 	hexShape.beginShape();
 	float h = r*sqrt(3)/2;
-	// hexShape.fill(100);
 	hexShape.vertex(0, -r);
 	hexShape.vertex(h, -r/2);
 	hexShape.vertex(h,  r/2);
@@ -546,41 +822,52 @@ public PShape createHex(float r) {
 public class MadeButton {
     float x, y, width, height;
     boolean on = true;
-    String[] labels;
+    String label;
     float padx = 6;
     int currentLabel = 0;
+    Selection selection;
     
-    MadeButton ( float xx, float yy, float w, float h, String[] labels ) {
+    MadeButton ( float xx, float yy, float w, float h, String label, boolean selected, Selection my_selection) {
         x = xx; y = yy; width = w; height = h;
-        this.labels = labels;
+        this.on = selected;
+        this.label = label;
         Interactive.add( this ); // register it with the manager
+        this.selection = my_selection;
+    }
+
+    public void turnOn() {
+        this.on = true;
+    }
+
+    public void turnOff() {
+        this.on = false;
     }
     
     // called by manager
     
     public void mousePressed () {
-        on = !on;
+        println("MOUSE PRESSED in " + label);
+        // on = !on;
     }
     public void mouseReleased () {
-        on = !on;
-        currentLabel += 1;
-        currentLabel = currentLabel % 3;
-        Interactive.send( this, "labelChanged", labels[currentLabel] );
+        // println("MOUSE RELEASED in " + label);
+        // Interactive.send( this, label);
+        selection.notifyFromButton(label);
     }
 
     public void draw () {
-        if ( on ) fill( 200 );
-        else fill( 100 );
+        if ( on ) fill( 100 );
+        else fill( 200 );
         noStroke();
-        rect(x, y, width, height);
-        textAlign( LEFT );
+        ellipse(x, y, width, height);
+        textAlign( CENTER );
         fill( 100 );
-        text( labels[currentLabel], x+width+padx, y+height );
+        text( label, x+width+padx, y+height );
         stroke(0);
     }
 
     public boolean isInside ( float mx, float my ) {
-        return Interactive.insideRect( x,y,width+padx+textWidth(labels[currentLabel]), height, mx, my );
+        return Interactive.insideRect( x,y,width+padx+textWidth(label), height, mx, my );
     }
 }
 public class MultiSlider
@@ -709,22 +996,71 @@ class SliderHandle
 public class Selection {
     Canvas c;
     CheckBox[] quartersBtn;
-    MadeButton shotMadeBtn;
+    ArrayList<MadeButton> shotSelectionBtns;
+    MadeButton allBtn;
+    MadeButton shotMissedBtn;
+    ArrayList<MadeButton> displayTypeBtns;
+    MadeButton frequencyBtn;
+    MadeButton fgBtn;
+    MadeButton efgBtn;
+    ArrayList<MadeButton> teamSelectBtns;
+    MadeButton allTeamsBtn;
+    MadeButton rocketsBtn;
+    MadeButton celticsBtn;
+    MadeButton grizzliesBtn;
     MultiSlider clockSlider;
+    Controller my_controller;
 
     public Selection (Canvas canvas, Controller controller) {
         this.c = canvas;
-        quartersBtn = new CheckBox[4];
+        this.my_controller = controller;
+        quartersBtn = new CheckBox[5];
         for ( int i = 0; i < 4; ++i ) {
-            quartersBtn[i] = new CheckBox( str(i+1), c.x + 20 + i*40, c.y + 90, 10, 10 );
+            quartersBtn[i] = new CheckBox( str(i+1), c.x + 20 + i*40, c.y + 150, 10, 10 );
             Interactive.on( quartersBtn[i], "checkboxChenged",  this, "quarterChanged" );
         }
+        quartersBtn[4] = new CheckBox( "OT", c.x + 180, c.y + 150, 10, 10);
+        Interactive.on( quartersBtn[4], "checkboxChenged", this, "quarterChanged");
 
-        String labels[] = {"all", "made", "not made"};
-        shotMadeBtn = new MadeButton(c.x + 20, c.y + 30, 10, 10, labels);
-        Interactive.on( shotMadeBtn, "labelChanged",  this, "madeChanged" );
+        allBtn = new MadeButton(c.x + 20, c.y + 30, 10, 10, "All", true, this);
+        Interactive.on( allBtn, "All", this, "allOn");
+        shotMissedBtn = new MadeButton(c.x + 80, c.y + 30, 10, 10, "Not Made", false, this);
+        Interactive.on( shotMissedBtn, "Not Made", this, "shotNotMadeOn");
+        
+        shotSelectionBtns = new ArrayList<MadeButton>();
+        shotSelectionBtns.add(allBtn);
+        shotSelectionBtns.add(shotMissedBtn);
 
-        clockSlider = new MultiSlider( c.x + 20, c.y+140, c.w-40, 10 );
+        frequencyBtn = new MadeButton(c.x + 20, c.y + 90, 10, 10, "Frequency", true, this);
+        Interactive.on( frequencyBtn, "Frequency", this, "frequencyOn");
+
+        fgBtn = new MadeButton(c.x + 120, c.y + 90, 10, 10, "FG%", false, this);
+        Interactive.on( fgBtn, "FG%", this, "fgOn");
+
+        efgBtn = new MadeButton(c.x + 220, c.y + 90, 10, 10, "eFG%", false, this);
+        Interactive.on( efgBtn, "eFG%", this, "efgOn");
+        
+        displayTypeBtns = new ArrayList<MadeButton>();
+        displayTypeBtns.add(frequencyBtn);
+        displayTypeBtns.add(fgBtn);
+        displayTypeBtns.add(efgBtn);
+
+        allTeamsBtn = new MadeButton(c.x + 20, c.y + 240, 10, 10, "All Teams", true, this);
+        Interactive.on( allTeamsBtn, "All Teams", this, "allTeamsOn");
+        rocketsBtn = new MadeButton(c.x + 80, c.y + 240, 10, 10, "HOU", false, this);
+        Interactive.on( rocketsBtn, "HOU", this, "rocketsOn");
+        celticsBtn = new MadeButton(c.x + 140, c.y + 240, 10, 10, "BOS", false, this);
+        Interactive.on( celticsBtn, "BOS", this, "celticsOn");
+        grizzliesBtn = new MadeButton(c.x + 200, c.y + 240, 10, 10, "MEM", false, this);
+        Interactive.on( grizzliesBtn, "MEM", this, "grizzliesOn");
+
+        teamSelectBtns = new ArrayList<MadeButton>();
+        teamSelectBtns.add(allTeamsBtn);
+        teamSelectBtns.add(rocketsBtn);
+        teamSelectBtns.add(celticsBtn);
+        teamSelectBtns.add(grizzliesBtn);
+
+        clockSlider = new MultiSlider( c.x + 20, c.y+200, c.w-40, 10 );
         Interactive.on( clockSlider, "valueChanged",  this, "clockChanged" );
         Interactive.on( clockSlider, "applayVal",  this, "applay" );
     }
@@ -733,8 +1069,9 @@ public class Selection {
         fill(0, 102, 153);
         textAlign( LEFT );
         text( "SHOTS", c.x + 20, c.y + 20 );
-        text( "QUARTERS", c.x + 20, c.y + 80 );
-        text( "SHOT CLOCK", c.x + 20, c.y + 130 );
+        text( "DISPLAY TYPE", c.x + 20, c.y + 80 );
+        text( "QUARTERS", c.x + 20, c.y + 140 );
+        text( "SHOT CLOCK", c.x + 20, c.y + 190 );
         for (CheckBox b : quartersBtn) {
             b.draw();
         }
@@ -749,6 +1086,106 @@ public class Selection {
         controller.applaySelection();
     }
 
+    public void teamChanged(String label) {
+        controller.teamLabel = label;
+        controller.applaySelection();
+    }
+
+    public void notifyFromButton(String label) {
+        println(" notify from button called with label " + label);
+        if (label.equals("All")) {
+            allOn();
+        } else if (label.equals("Not Made")) {
+            shotMissedOn();
+        } else if (label.equals("Frequency")) {
+            frequencyOn();
+        } else if (label.equals("FG%")) {
+            fgOn();
+        } else if (label.equals("eFG%")) {
+            efgOn();
+        } else if (label.equals("All Teams")) {
+            allTeamsOn();
+        } else if (label.equals("HOU")) {
+            rocketsOn();
+        } else if (label.equals("BOS")) {
+            celticsOn();
+        } else if (label.equals("MEM")) {
+            grizzliesOn();
+        }
+    }
+
+    public void allOn() {
+        for (MadeButton b : shotSelectionBtns) {
+            b.turnOff();
+        }
+        allBtn.turnOn();
+        madeChanged("all");
+    }
+
+    public void shotMissedOn() {
+        for (MadeButton b : shotSelectionBtns) {
+            b.turnOff();
+        }
+        shotMissedBtn.turnOn();
+        madeChanged("not made");
+    }
+
+    public void frequencyOn() {
+        for (MadeButton b : displayTypeBtns) {
+            b.turnOff();
+        }
+        frequencyBtn.turnOn();
+        controller.setDisplayMode("frequency");
+    }
+
+    public void fgOn() {
+        for (MadeButton b : displayTypeBtns) {
+            b.turnOff();
+        }
+        fgBtn.turnOn();
+        controller.setDisplayMode("fg");
+    }
+
+    public void efgOn() {
+        for (MadeButton b : displayTypeBtns) {
+            b.turnOff();
+        }
+        efgBtn.turnOn();
+        controller.setDisplayMode("efg");
+    }
+
+    public void allTeamsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        allTeamsBtn.turnOn();
+        teamChanged("all");
+    }
+
+    public void rocketsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        rocketsBtn.turnOn();
+        teamChanged("Houston Rockets");
+    }
+
+    public void celticsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        celticsBtn.turnOn();
+        teamChanged("Boston Celtics");
+    }
+
+    public void grizzliesOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        grizzliesBtn.turnOn();
+        teamChanged("Memphis Grizzlies");
+    }
+
     public void clockChanged(float minVal, float maxVal) {
         controller.shot_clock[0] = minVal*24;
         controller.shot_clock[1] = maxVal*24;
@@ -756,9 +1193,14 @@ public class Selection {
     }
 
     public void quarterChanged(String label, boolean checked) {
-        int i = PApplet.parseInt(label);
-        controller.quarters[i-1] = checked;
-        controller.applaySelection();
+        if (label == "OT") {
+            controller.quarters[4] = checked;
+            controller.applaySelection();
+        } else {
+            int i = PApplet.parseInt(label);
+            controller.quarters[i-1] = checked;
+            controller.applaySelection();
+        }
     }
 
 }
