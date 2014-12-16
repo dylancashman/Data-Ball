@@ -62,10 +62,14 @@ public class Controller  {
         String conditionQuerry = "(shot_clock>" + this.shot_clock[0] + " AND shot_clock<" + this.shot_clock[1] + ")";
         for (int i = 0; i < 5; ++i) {
             if (quarters[i]) {
-                if (quarterQuerry != "") {
-                    quarterQuerry += " OR ";
+                if (i == 4) {
+                    quarterQuerry += " period > 4";
+                } else {
+                    if (quarterQuerry != "") {
+                        quarterQuerry += " OR ";
+                    }
+                    quarterQuerry += " period=" + str(i+1);
                 }
-                quarterQuerry += " period=" + str(i+1);
             }
         }
         if (quarterQuerry != "") {

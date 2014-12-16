@@ -19,11 +19,11 @@ Selection selectionUI;
 
 
 void setup() {
-    size(1300, 700, P2D);
+    size(1330, 700, P2D);
     Interactive.make(this);
     courtCanvas = new Canvas(0, 0, 1000, 700);
-    detailCanvas = new Canvas(1000, 400, 300, 300);
-    selectionCanvas = new Canvas(1000, 0, 300, 400);
+    detailCanvas = new Canvas(1000, 550, 330, 150);
+    selectionCanvas = new Canvas(1000, 0, 330, 550);
     radius = courtCanvas.w/((gridSize[0] -1 )*sqrt(3));
     grid = new HexGrid(gridSize, radius, courtCanvas);
     initController();

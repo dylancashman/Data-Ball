@@ -11,9 +11,36 @@ public class Selection {
     MadeButton efgBtn;
     ArrayList<MadeButton> teamSelectBtns;
     MadeButton allTeamsBtn;
-    MadeButton rocketsBtn;
+    MadeButton hawksBtn;
     MadeButton celticsBtn;
+    MadeButton netsBtn;
+    MadeButton bobcatsBtn;
+    MadeButton bullsBtn;
+    MadeButton cavsBtn;
+    MadeButton mavsBtn;
+    MadeButton nuggetsBtn;
+    MadeButton pistonsBtn;
+    MadeButton warriorsBtn;
+    MadeButton rocketsBtn;
+    MadeButton pacersBtn;
+    MadeButton clippersBtn;
+    MadeButton lakersBtn;
     MadeButton grizzliesBtn;
+    MadeButton heatBtn;
+    MadeButton bucksBtn;
+    MadeButton twolvesBtn;
+    MadeButton pelicansBtn;
+    MadeButton knicksBtn;
+    MadeButton thunderBtn;
+    MadeButton magicBtn;
+    MadeButton sixersBtn;
+    MadeButton sunsBtn;
+    MadeButton blazersBtn;
+    MadeButton kingsBtn;
+    MadeButton spursBtn;
+    MadeButton raptorsBtn;
+    MadeButton jazzBtn;
+    MadeButton wizardsBtn;
     MultiSlider clockSlider;
     Controller my_controller;
 
@@ -52,19 +79,75 @@ public class Selection {
         displayTypeBtns.add(efgBtn);
 
         allTeamsBtn = new MadeButton(c.x + 20, c.y + 240, 40, 15, "All", true, this);
-        Interactive.on( allTeamsBtn, "All Teams", this, "allTeamsOn");
-        rocketsBtn = new MadeButton(c.x + 80, c.y + 240, 40, 15, "HOU", false, this);
-        Interactive.on( rocketsBtn, "HOU", this, "rocketsOn");
-        celticsBtn = new MadeButton(c.x + 140, c.y + 240, 40, 15, "BOS", false, this);
-        Interactive.on( celticsBtn, "BOS", this, "celticsOn");
-        grizzliesBtn = new MadeButton(c.x + 200, c.y + 240, 40, 15, "MEM", false, this);
-        Interactive.on( grizzliesBtn, "MEM", this, "grizzliesOn");
+        
+        hawksBtn = new MadeButton(c.x + 20, c.y + 260, 40, 15, "ATL", false, this);
+        celticsBtn = new MadeButton(c.x + 70, c.y + 260, 40, 15, "BOS", false, this);
+        netsBtn = new MadeButton(c.x + 120, c.y + 260, 40, 15, "BKN", false, this);
+        bobcatsBtn = new MadeButton(c.x + 170, c.y + 260, 40, 15, "CHA", false, this);
+        bullsBtn = new MadeButton(c.x + 220, c.y + 260, 40, 15, "CHI", false, this);
+        cavsBtn = new MadeButton(c.x + 270, c.y + 260, 40, 15, "CLE", false, this);
+
+        mavsBtn = new MadeButton(c.x + 20, c.y + 280, 40, 15, "DAL", false, this);
+        nuggetsBtn = new MadeButton(c.x + 70, c.y + 280, 40, 15, "DEN", false, this);
+        pistonsBtn = new MadeButton(c.x + 120, c.y + 280, 40, 15, "DET", false, this);
+        warriorsBtn = new MadeButton(c.x + 170, c.y + 280, 40, 15, "GSW", false, this);
+        rocketsBtn = new MadeButton(c.x + 220, c.y + 280, 40, 15, "HOU", false, this);
+        pacersBtn = new MadeButton(c.x + 270, c.y + 280, 40, 15, "IND", false, this);
+        
+        clippersBtn = new MadeButton(c.x + 20, c.y + 300, 40, 15, "LAC", false, this);
+        lakersBtn = new MadeButton(c.x + 70, c.y + 300, 40, 15, "LAL", false, this);
+        grizzliesBtn = new MadeButton(c.x + 120, c.y + 300, 40, 15, "MEM", false, this);
+        heatBtn = new MadeButton(c.x + 170, c.y + 300, 40, 15, "MIA", false, this);
+        bucksBtn = new MadeButton(c.x + 220, c.y + 300, 40, 15, "MIL", false, this);
+        twolvesBtn = new MadeButton(c.x + 270, c.y + 300, 40, 15, "MIN", false, this);
+        
+        pelicansBtn = new MadeButton(c.x + 20, c.y + 320, 40, 15, "NOH", false, this);
+        knicksBtn = new MadeButton(c.x + 70, c.y + 320, 40, 15, "NYK", false, this);
+        thunderBtn = new MadeButton(c.x + 120, c.y + 320, 40, 15, "OKC", false, this);
+        magicBtn = new MadeButton(c.x + 170, c.y + 320, 40, 15, "ORL", false, this);
+        sixersBtn = new MadeButton(c.x + 220, c.y + 320, 40, 15, "PHI", false, this);
+        sunsBtn = new MadeButton(c.x + 270, c.y + 320, 40, 15, "PHX", false, this);
+        
+        blazersBtn = new MadeButton(c.x + 20, c.y + 340, 40, 15, "POR", false, this);
+        kingsBtn = new MadeButton(c.x + 70, c.y + 340, 40, 15, "SAC", false, this);
+        spursBtn = new MadeButton(c.x + 120, c.y + 340, 40, 15, "SAS", false, this);
+        raptorsBtn = new MadeButton(c.x + 170, c.y + 340, 40, 15, "TOR", false, this);
+        jazzBtn = new MadeButton(c.x + 220, c.y + 340, 40, 15, "UTA", false, this);
+        wizardsBtn = new MadeButton(c.x + 270, c.y + 340, 40, 15, "WAS", false, this);
+
 
         teamSelectBtns = new ArrayList<MadeButton>();
         teamSelectBtns.add(allTeamsBtn);
-        teamSelectBtns.add(rocketsBtn);
+        teamSelectBtns.add(hawksBtn);
         teamSelectBtns.add(celticsBtn);
+        teamSelectBtns.add(netsBtn);
+        teamSelectBtns.add(bobcatsBtn);
+        teamSelectBtns.add(bullsBtn);
+        teamSelectBtns.add(cavsBtn);
+        teamSelectBtns.add(mavsBtn);
+        teamSelectBtns.add(nuggetsBtn);
+        teamSelectBtns.add(pistonsBtn);
+        teamSelectBtns.add(warriorsBtn);
+        teamSelectBtns.add(rocketsBtn);
+        teamSelectBtns.add(pacersBtn);
+        teamSelectBtns.add(clippersBtn);
+        teamSelectBtns.add(lakersBtn);
         teamSelectBtns.add(grizzliesBtn);
+        teamSelectBtns.add(heatBtn);
+        teamSelectBtns.add(bucksBtn);
+        teamSelectBtns.add(twolvesBtn);
+        teamSelectBtns.add(pelicansBtn);
+        teamSelectBtns.add(knicksBtn);
+        teamSelectBtns.add(thunderBtn);
+        teamSelectBtns.add(magicBtn);
+        teamSelectBtns.add(sixersBtn);
+        teamSelectBtns.add(sunsBtn);
+        teamSelectBtns.add(blazersBtn);
+        teamSelectBtns.add(kingsBtn);
+        teamSelectBtns.add(spursBtn);
+        teamSelectBtns.add(raptorsBtn);
+        teamSelectBtns.add(jazzBtn);
+        teamSelectBtns.add(wizardsBtn);
 
         clockSlider = new MultiSlider( c.x + 20, c.y+200, c.w-40, 10 );
         Interactive.on( clockSlider, "valueChanged",  this, "clockChanged" );
@@ -81,6 +164,7 @@ public class Selection {
         for (CheckBox b : quartersBtn) {
             b.draw();
         }
+        text( "OFFENSE", c.x + 20, c.y + 235);
     }
 
     void applay() {
@@ -113,12 +197,66 @@ public class Selection {
             efgOn();
         } else if (label.equals("All Teams")) {
             allTeamsOn();
-        } else if (label.equals("HOU")) {
-            rocketsOn();
+        } else if (label.equals("ATL")) {
+            hawksOn();
         } else if (label.equals("BOS")) {
             celticsOn();
+        } else if (label.equals("BKN")) {
+            netsOn();
+        } else if (label.equals("CHA")) {
+            bobcatsOn();
+        } else if (label.equals("CHI")) {
+            bullsOn();
+        } else if (label.equals("CLE")) {
+            cavsOn();
+        } else if (label.equals("DAL")) {
+            mavsOn();
+        } else if (label.equals("DEN")) {
+            nuggetsOn();
+        } else if (label.equals("DET")) {
+            pistonsOn();
+        } else if (label.equals("GSW")) {
+            warriorsOn();
+        } else if (label.equals("HOU")) {
+            rocketsOn();
+        } else if (label.equals("IND")) {
+            pacersOn();
+        } else if (label.equals("LAC")) {
+            clippersOn();
+        } else if (label.equals("LAL")) {
+            lakersOn();
         } else if (label.equals("MEM")) {
             grizzliesOn();
+        } else if (label.equals("MIA")) {
+            heatOn();
+        } else if (label.equals("MIL")) {
+            bucksOn();
+        } else if (label.equals("MIN")) {
+            twolvesOn();
+        } else if (label.equals("NOH")) {
+            pelicansOn();
+        } else if (label.equals("NYK")) {
+            knicksOn();
+        } else if (label.equals("OKC")) {
+            thunderOn();
+        } else if (label.equals("ORL")) {
+            magicOn();
+        } else if (label.equals("PHI")) {
+            sixersOn();
+        } else if (label.equals("PHX")) {
+            sunsOn();
+        } else if (label.equals("POR")) {
+            blazersOn();
+        } else if (label.equals("SAC")) {
+            kingsOn();
+        } else if (label.equals("SAS")) {
+            spursOn();
+        } else if (label.equals("TOR")) {
+            raptorsOn();
+        } else if (label.equals("UTA")) {
+            jazzOn();
+        } else if (label.equals("WAS")) {
+            wizardsOn();
         }
     }
 
@@ -178,14 +316,13 @@ public class Selection {
         teamChanged("all");
     }
 
-    void rocketsOn() {
+    void hawksOn() {
         for (MadeButton b : teamSelectBtns) {
             b.turnOff();
         }
-        rocketsBtn.turnOn();
-        teamChanged("Houston Rockets");
+        hawksBtn.turnOn();
+        teamChanged("Atlanta Hawks");
     }
-
     void celticsOn() {
         for (MadeButton b : teamSelectBtns) {
             b.turnOff();
@@ -193,13 +330,201 @@ public class Selection {
         celticsBtn.turnOn();
         teamChanged("Boston Celtics");
     }
-
+    void netsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        netsBtn.turnOn();
+        teamChanged("Brooklyn Nets");
+    }
+    void bobcatsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        bobcatsBtn.turnOn();
+        teamChanged("Charlotte Bobcats");
+    }
+    void bullsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        bullsBtn.turnOn();
+        teamChanged("Chicago Bulls");
+    }
+    void cavsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        cavsBtn.turnOn();
+        teamChanged("Cleveland Cavaliers");
+    }
+    void mavsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        mavsBtn.turnOn();
+        teamChanged("Dallas Mavericks");
+    }
+    void nuggetsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        nuggetsBtn.turnOn();
+        teamChanged("Denver Nuggets");
+    }
+    void pistonsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        pistonsBtn.turnOn();
+        teamChanged("Detroit Pistons");
+    }
+    void warriorsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        warriorsBtn.turnOn();
+        teamChanged("Golden State Warriors");
+    }
+    void rocketsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        rocketsBtn.turnOn();
+        teamChanged("Houston Rockets");
+    }
+    void pacersOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        pacersBtn.turnOn();
+        teamChanged("Indiana Pacers");
+    }
+    void clippersOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        clippersBtn.turnOn();
+        teamChanged("Los Angeles Clippers");
+    }
+    void lakersOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        lakersBtn.turnOn();
+        teamChanged("Los Angeles Lakers");
+    }
     void grizzliesOn() {
         for (MadeButton b : teamSelectBtns) {
             b.turnOff();
         }
         grizzliesBtn.turnOn();
         teamChanged("Memphis Grizzlies");
+    }
+    void heatOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        heatBtn.turnOn();
+        teamChanged("Miami Heat");
+    }
+    void bucksOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        bucksBtn.turnOn();
+        teamChanged("Milwaukee Bucks");
+    }
+    void twolvesOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        twolvesBtn.turnOn();
+        teamChanged("Minnesota Timberwolves");
+    }
+    void pelicansOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        pelicansBtn.turnOn();
+        teamChanged("New Orleans Pelicans");
+    }
+    void knicksOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        knicksBtn.turnOn();
+        teamChanged("New York Knicks");
+    }
+    void thunderOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        thunderBtn.turnOn();
+        teamChanged("Oklahoma City Thunder");
+    }
+    void magicOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        magicBtn.turnOn();
+        teamChanged("Orlando Magic");
+    }
+    void sixersOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        sixersBtn.turnOn();
+        teamChanged("Philadelphia 76ers");
+    }
+    void sunsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        sunsBtn.turnOn();
+        teamChanged("Phoenix Suns");
+    }
+    void blazersOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        blazersBtn.turnOn();
+        teamChanged("Portland Trailblazers");
+    }
+    void kingsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        kingsBtn.turnOn();
+        teamChanged("Sacramento Kings");
+    }
+    void spursOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        spursBtn.turnOn();
+        teamChanged("San Antonio Spurs");
+    }
+    void raptorsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        raptorsBtn.turnOn();
+        teamChanged("Toronto Raptors");
+    }
+    void jazzOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        jazzBtn.turnOn();
+        teamChanged("Utah Jazz");
+    }
+    void wizardsOn() {
+        for (MadeButton b : teamSelectBtns) {
+            b.turnOff();
+        }
+        wizardsBtn.turnOn();
+        teamChanged("Washington Wizards");
     }
 
     void clockChanged(float minVal, float maxVal) {
