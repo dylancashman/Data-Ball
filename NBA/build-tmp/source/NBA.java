@@ -230,7 +230,6 @@ public class Controller  {
                 String name = this.pgsql.getString("name");
                 boolean made = this.pgsql.getBoolean("shot_made_flag");
                 String shot_type = this.pgsql.getString("shot_type");
-                println("shot_type is " + shot_type);
                 if (shot_type.equals("2PT Field Goal")) {
                     this.grid.addShot(x, y, name, made, !made, false, false);
                 } else if (shot_type.equals("3PT Field Goal")) {
@@ -322,7 +321,7 @@ public class HexDetails  {
 
 	public String fg() {
 		if (currentHex != null) {
-			return Float.toString(((float)currentHex.shotsMade)/((float)(currentHex.shotsMade + currentHex.shotsMissed)));
+			return String.format("%.3g%n", 100*((float)currentHex.shotsMade)/((float)(currentHex.shotsMade + currentHex.shotsMissed)));
 		} else {
 			return "";
 		}
@@ -330,7 +329,7 @@ public class HexDetails  {
 
 	public String efg() {
 		if (currentHex != null) {
-			return Float.toString(((float)(2*currentHex.twosMade + 3*currentHex.threesMade))/((float)(currentHex.shotsMissed + currentHex.shotsMade)));
+			return String.format("%.3g%n",100*((float)(currentHex.shotsMade + (0.5f)*(float)currentHex.threesMade))/((float)(currentHex.shotsMissed + currentHex.shotsMade)));
 		} else {
 			return "";
 		}

@@ -51,7 +51,7 @@ public class HexDetails  {
 
 	String fg() {
 		if (currentHex != null) {
-			return Float.toString(((float)currentHex.shotsMade)/((float)(currentHex.shotsMade + currentHex.shotsMissed)));
+			return String.format("%.3g%n", 100*((float)currentHex.shotsMade)/((float)(currentHex.shotsMade + currentHex.shotsMissed)));
 		} else {
 			return "";
 		}
@@ -59,7 +59,7 @@ public class HexDetails  {
 
 	String efg() {
 		if (currentHex != null) {
-			return Float.toString(((float)(2*currentHex.twosMade + 3*currentHex.threesMade))/((float)(currentHex.shotsMissed + currentHex.shotsMade)));
+			return String.format("%.3g%n",100*((float)(currentHex.shotsMade + (0.5)*(float)currentHex.threesMade))/((float)(currentHex.shotsMissed + currentHex.shotsMade)));
 		} else {
 			return "";
 		}
