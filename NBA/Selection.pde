@@ -3,6 +3,7 @@ public class Selection {
     CheckBox[] quartersBtn;
     ArrayList<MadeButton> shotSelectionBtns;
     MadeButton allBtn;
+    MadeButton shotMadeBtn;
     MadeButton shotMissedBtn;
     ArrayList<MadeButton> displayTypeBtns;
     MadeButton frequencyBtn;
@@ -27,22 +28,22 @@ public class Selection {
         quartersBtn[4] = new CheckBox( "OT", c.x + 180, c.y + 150, 10, 10);
         Interactive.on( quartersBtn[4], "checkboxChenged", this, "quarterChanged");
 
-        allBtn = new MadeButton(c.x + 20, c.y + 30, 10, 10, "All", true, this);
-        Interactive.on( allBtn, "All", this, "allOn");
-        shotMissedBtn = new MadeButton(c.x + 80, c.y + 30, 10, 10, "Not Made", false, this);
-        Interactive.on( shotMissedBtn, "Not Made", this, "shotNotMadeOn");
+        allBtn = new MadeButton(c.x + 20, c.y + 30, 50, 15, "all", true, this);
+        shotMadeBtn = new MadeButton(c.x + 80, c.y + 30, 50, 15, "made", false, this);
+        shotMissedBtn = new MadeButton(c.x + 140, c.y + 30, 50, 15, "missed", false, this);
         
         shotSelectionBtns = new ArrayList<MadeButton>();
         shotSelectionBtns.add(allBtn);
+        shotSelectionBtns.add(shotMadeBtn);
         shotSelectionBtns.add(shotMissedBtn);
 
-        frequencyBtn = new MadeButton(c.x + 20, c.y + 90, 10, 10, "Frequency", true, this);
+        frequencyBtn = new MadeButton(c.x + 20, c.y + 90, 80, 15, "Frequency", true, this);
         Interactive.on( frequencyBtn, "Frequency", this, "frequencyOn");
 
-        fgBtn = new MadeButton(c.x + 120, c.y + 90, 10, 10, "FG%", false, this);
+        fgBtn = new MadeButton(c.x + 120, c.y + 90, 80, 15, "FG%", false, this);
         Interactive.on( fgBtn, "FG%", this, "fgOn");
 
-        efgBtn = new MadeButton(c.x + 220, c.y + 90, 10, 10, "eFG%", false, this);
+        efgBtn = new MadeButton(c.x + 220, c.y + 90, 80, 15, "eFG%", false, this);
         Interactive.on( efgBtn, "eFG%", this, "efgOn");
         
         displayTypeBtns = new ArrayList<MadeButton>();
@@ -50,13 +51,13 @@ public class Selection {
         displayTypeBtns.add(fgBtn);
         displayTypeBtns.add(efgBtn);
 
-        allTeamsBtn = new MadeButton(c.x + 20, c.y + 240, 10, 10, "All Teams", true, this);
+        allTeamsBtn = new MadeButton(c.x + 20, c.y + 240, 40, 15, "All", true, this);
         Interactive.on( allTeamsBtn, "All Teams", this, "allTeamsOn");
-        rocketsBtn = new MadeButton(c.x + 80, c.y + 240, 10, 10, "HOU", false, this);
+        rocketsBtn = new MadeButton(c.x + 80, c.y + 240, 40, 15, "HOU", false, this);
         Interactive.on( rocketsBtn, "HOU", this, "rocketsOn");
-        celticsBtn = new MadeButton(c.x + 140, c.y + 240, 10, 10, "BOS", false, this);
+        celticsBtn = new MadeButton(c.x + 140, c.y + 240, 40, 15, "BOS", false, this);
         Interactive.on( celticsBtn, "BOS", this, "celticsOn");
-        grizzliesBtn = new MadeButton(c.x + 200, c.y + 240, 10, 10, "MEM", false, this);
+        grizzliesBtn = new MadeButton(c.x + 200, c.y + 240, 40, 15, "MEM", false, this);
         Interactive.on( grizzliesBtn, "MEM", this, "grizzliesOn");
 
         teamSelectBtns = new ArrayList<MadeButton>();
@@ -98,9 +99,11 @@ public class Selection {
 
     void notifyFromButton(String label) {
         println(" notify from button called with label " + label);
-        if (label.equals("All")) {
+        if (label.equals("all")) {
             allOn();
-        } else if (label.equals("Not Made")) {
+        } else if (label.equals("made")) {
+            shotMadeOn();
+        } else if (label.equals("missed")) {
             shotMissedOn();
         } else if (label.equals("Frequency")) {
             frequencyOn();
@@ -133,6 +136,14 @@ public class Selection {
         }
         shotMissedBtn.turnOn();
         madeChanged("not made");
+    }
+
+    void shotMadeOn() {
+        for (MadeButton b : shotSelectionBtns) {
+            b.turnOff();
+        }
+        shotMadeBtn.turnOn();
+        madeChanged("made");
     }
 
     void frequencyOn() {

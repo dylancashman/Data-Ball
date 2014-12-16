@@ -3,6 +3,7 @@ public class MadeButton {
     boolean on = true;
     String label;
     float padx = 6;
+    float pady = 3;
     int currentLabel = 0;
     Selection selection;
     
@@ -38,10 +39,11 @@ public class MadeButton {
         if ( on ) fill( 100 );
         else fill( 200 );
         noStroke();
-        ellipse(x, y, width, height);
+        rect(x, y, width, height, 7);
         textAlign( CENTER );
-        fill( 100 );
-        text( label, x+width+padx, y+height );
+        if (on) fill( 200 );
+        else fill( 100 );
+        text( label, x+(width/2), y+(height/2) + pady );
         stroke(0);
     }
 
