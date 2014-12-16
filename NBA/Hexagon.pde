@@ -10,6 +10,10 @@ public class Hexagon  {
 	public Hexagon (PShape hexShape, float[] center) {
 		this.hexShape = hexShape;
 		this.center = center;
+		this.zeroOut();
+	}
+
+	void zeroOut() {
 		this.shots = new IntDict();
 		this.shotsMade = 0;
 		this.shotsMissed = 0;

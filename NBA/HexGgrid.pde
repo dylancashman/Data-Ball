@@ -123,4 +123,12 @@ public class HexGrid  {
 		}
 	}
 
+	void zeroOut() {
+		for (Hexagon[] hexCol : this.grid) {
+			for (Hexagon h : hexCol) {
+				h.zeroOut();
+			}
+		}
+	}
+
 }

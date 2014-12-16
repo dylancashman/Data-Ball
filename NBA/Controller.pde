@@ -16,6 +16,7 @@ public class Controller  {
             String query = "SELECT x, y, name, shot_made_flag, shot_type FROM shots";
             query += getConditionQuerry();
             println("query: "+query);
+            grid.zeroOut();
             this.pgsql.query(query);
             while (this.pgsql.next()) {
                 int x = this.pgsql.getInt("x") + 250;
