@@ -1165,7 +1165,6 @@ public class Selection {
             b.draw();
         }
         text( "OFFENSE", c.x + 20, c.y + 235);
-        text( "DEFENSE", c.x + 20, c.y + 395);
     }
 
     public void applay() {
@@ -1196,7 +1195,7 @@ public class Selection {
             fgOn();
         } else if (label.equals("eFG%")) {
             efgOn();
-        } else if (label.equals("All Teams")) {
+        } else if (label.equals("All")) {
             allTeamsOn();
         } else if (label.equals("ATL")) {
             hawksOn();
@@ -1490,7 +1489,7 @@ public class Selection {
             b.turnOff();
         }
         blazersBtn.turnOn();
-        teamChanged("Portland Trailblazers");
+        teamChanged("Portland Trail Blazers");
     }
     public void kingsOn() {
         for (MadeButton b : teamSelectBtns) {
